@@ -55,7 +55,7 @@
                     // Store the token
                     localStorage.setItem('adminToken', data.token);
                     // Redirect to dashboard
-                    window.location.href = '/api/admin/dashboard';
+                    window.location.href = '/admin/dashboard';
                 } else {
                     alert(data.message || 'Login failed');
                 }

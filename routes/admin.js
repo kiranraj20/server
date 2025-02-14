@@ -7,16 +7,6 @@ const Order = require('../models/Order');
 const User = require('../models/User');
 const Category = require('../models/Category');
 
-// Public routes - serving HTML pages
-router.get('/setup', (req, res) => {
-    res.sendFile('setup.html', { root: './public/admin' });
-});
-
-// Serve dashboard page without auth
-router.get('/dashboard', (req, res) => {
-    res.sendFile('dashboard.html', { root: './public/admin' });
-});
-
 // Protected API routes
 router.get('/statistics', [auth, admin], async (req, res) => {
     try {

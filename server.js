@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -8,6 +9,10 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Serve static files
+app.use(express.static('public'));
+app.use('/admin', express.static(path.join(__dirname, 'public/admin')));
 
 // Global error handler
 app.use((err, req, res, next) => {
@@ -42,9 +47,6 @@ const adminRoutes = require('./routes/admin');
 const setupRoutes = require('./routes/setup');
 const authRoutes = require('./routes/auth');
 
-// Serve static files
-app.use(express.static('public'));
-
 // Use routes
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
@@ -55,6 +57,19 @@ app.use('/api/offers', offerRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/setup', setupRoutes);
 app.use('/api/auth', authRoutes);
+
+// Serve admin pages
+app.get('/admin/setup', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/admin/setup.html'));
+});
+
+app.get('/admin/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/admin/login.html'));
+});
+
+app.get('/admin/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/admin/dashboard.html'));
+});
 
 // Basic route
 app.get('/', (req, res) => {

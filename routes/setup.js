@@ -3,11 +3,6 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const Admin = require('../models/Admin');
 
-// Serve setup page
-router.get('/', (req, res) => {
-    res.sendFile('setup.html', { root: './public/admin' });
-});
-
 // Create initial admin account
 router.post('/create-admin', async (req, res) => {
     try {

@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         const token = localStorage.getItem('adminToken');
         if (!token) {
-            window.location.href = '/api/admin/setup';
+            window.location.href = '/admin/setup';
             return;
         }
 
