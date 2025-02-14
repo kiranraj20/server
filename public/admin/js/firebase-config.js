@@ -2,12 +2,12 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, browserSessionPersistence, setPersistence } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBHgzTurzEZ3sVZ7C5YLXPsrNExUeJNjDo",
-  authDomain: "skblossom-af512.firebaseapp.com",
-  projectId: "skblossom-af512",
-  storageBucket: "skblossom-af512.appspot.com",
-  messagingSenderId: "717048781387",
-  appId: "1:717048781387:web:8ad5468db2455758910bce",
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
   measurementId: "G-MEASUREMENT_ID"  // Optional
 };
 
