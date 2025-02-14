@@ -3,35 +3,53 @@ import { loadCategories } from './modules/categories.js';
 import { loadOrders } from './modules/orders.js';
 import { loadUsers } from './modules/users.js';
 import { fetchWithAuth } from './modules/utils.js';
+import { auth } from './firebase-config.js';
 
 document.addEventListener('DOMContentLoaded', async function() {
     try {
-        const token = localStorage.getItem('adminToken');
-        if (!token) {
-            window.location.href = '/admin/setup';
-            return;
-        }
+        // Check Firebase auth state instead of localStorage token
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // User is signed in
+                const idToken = await user.getIdToken();
+                // Verify admin status
+                const response = await fetch('/api/auth/verify-admin', {
+                    headers: {
+                        'Authorization': `Bearer ${idToken}`
+                    }
+                });
 
-        const adminInfo = JSON.parse(localStorage.getItem('adminInfo') || '{}');
-        updateAdminUI(adminInfo);
-        
-        // Set initial active state to dashboard
-        document.querySelector('#sidebar a[data-section="dashboard"]')?.classList.add('active');
-        await loadDashboardContent();
-        
-        // Handle sidebar navigation
-        document.querySelectorAll('#sidebar a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const section = this.dataset.section;
-                if (section) {
-                    loadSection(section);
+                if (response.ok) {
+                    // Get admin info for UI
+                    const adminData = await response.json();
+                    updateAdminUI(adminData.admin);
+                    
+                    // Set initial active state to dashboard
+                    document.querySelector('#sidebar a[data-section="dashboard"]')?.classList.add('active');
+                    await loadDashboardContent();
+                    
+                    // Add sidebar navigation listeners
+                    document.querySelectorAll('#sidebar a').forEach(link => {
+                        link.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const section = this.dataset.section;
+                            if (section) {
+                                loadSection(section);
+                            }
+                        });
+                    });
+                } else {
+                    // Not an admin, redirect to setup
+                    window.location.href = '/admin/setup';
                 }
-            });
+            } else {
+                // No user is signed in, redirect to login
+                window.location.href = '/admin/login';
+            }
         });
     } catch (error) {
         console.error('Error initializing dashboard:', error);
-        window.location.href = '/api/admin/setup';
+        window.location.href = '/admin/login';
     }
 });
 
@@ -312,9 +330,13 @@ function updateAdminUI(adminInfo) {
     header.appendChild(adminName);
 }
 
-// Make logout function globally available
-window.logout = function() {
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminInfo');
-    window.location.href = '/api/admin/setup';
+// Update the logout function
+window.logout = async function() {
+    try {
+        await auth.signOut();
+        window.location.href = '/admin/login';
+    } catch (error) {
+        console.error('Logout error:', error);
+        alert('Error logging out');
+    }
 };

@@ -11,13 +11,14 @@ const adminSchema = new Schema({
         required: true,
         unique: true
     },
-    password_hash: {
+    firebaseUid: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
-    role: {
-        type: String,
-        default: 'admin'
+    isAdmin: {
+        type: Boolean,
+        default: true
     },
     createdAt: {
         type: Date,

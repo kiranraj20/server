@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const admin = require('../middleware/admin');
+const adminMiddleware = require('../middleware/admin');
 const Product = require('../models/Product');
 const Order = require('../models/Order');
 const User = require('../models/User');
 const Category = require('../models/Category');
 
 // Protected API routes
-router.get('/statistics', [auth, admin], async (req, res) => {
+router.get('/statistics', [auth, adminMiddleware], async (req, res) => {
     try {
         const totalProducts = await Product.countDocuments();
         const totalOrders = await Order.countDocuments();
@@ -30,7 +30,7 @@ router.get('/statistics', [auth, admin], async (req, res) => {
 });
 
 // Get all products
-router.get('/products', [auth, admin], async (req, res) => {
+router.get('/products', [auth, adminMiddleware], async (req, res) => {
     try {
         const products = await Product.find().sort({ createdAt: -1 });
         res.json(products);
@@ -41,7 +41,7 @@ router.get('/products', [auth, admin], async (req, res) => {
 });
 
 // Get single product
-router.get('/products/:id', [auth, admin], async (req, res) => {
+router.get('/products/:id', [auth, adminMiddleware], async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
         if (!product) {
@@ -55,7 +55,7 @@ router.get('/products/:id', [auth, admin], async (req, res) => {
 });
 
 // Create new product
-router.post('/products', [auth, admin], async (req, res) => {
+router.post('/products', [auth, adminMiddleware], async (req, res) => {
     try {
         const { name, description, price, stock, category, size } = req.body;
         if (!name || !description || !price || !stock || !category || !size) {
@@ -87,7 +87,7 @@ router.post('/products', [auth, admin], async (req, res) => {
 });
 
 // Update product
-router.put('/products/:id', [auth, admin], async (req, res) => {
+router.put('/products/:id', [auth, adminMiddleware], async (req, res) => {
     try {
         const { name, description, price, stock, category, size, image_url } = req.body;
         
@@ -124,7 +124,7 @@ router.put('/products/:id', [auth, admin], async (req, res) => {
 });
 
 // Delete product
-router.delete('/products/:id', [auth, admin], async (req, res) => {
+router.delete('/products/:id', [auth, adminMiddleware], async (req, res) => {
     try {
         const product = await Product.findByIdAndDelete(req.params.id);
         if (!product) {
@@ -138,7 +138,7 @@ router.delete('/products/:id', [auth, admin], async (req, res) => {
 });
 
 // Categories Routes
-router.get('/categories', [auth, admin], async (req, res) => {
+router.get('/categories', [auth, adminMiddleware], async (req, res) => {
     try {
         const categories = await Category.find().sort({ createdAt: -1 });
         res.json(categories);
@@ -148,7 +148,7 @@ router.get('/categories', [auth, admin], async (req, res) => {
     }
 });
 
-router.post('/categories', [auth, admin], async (req, res) => {
+router.post('/categories', [auth, adminMiddleware], async (req, res) => {
     try {
         const { name, description } = req.body;
         if (!name) {
@@ -175,7 +175,7 @@ router.post('/categories', [auth, admin], async (req, res) => {
 });
 
 // Get single category
-router.get('/categories/:id', [auth, admin], async (req, res) => {
+router.get('/categories/:id', [auth, adminMiddleware], async (req, res) => {
     try {
         const category = await Category.findById(req.params.id);
         if (!category) {
@@ -189,7 +189,7 @@ router.get('/categories/:id', [auth, admin], async (req, res) => {
 });
 
 // Update category
-router.put('/categories/:id', [auth, admin], async (req, res) => {
+router.put('/categories/:id', [auth, adminMiddleware], async (req, res) => {
     try {
         const { name, description, active } = req.body;
         if (!name) {
@@ -217,7 +217,7 @@ router.put('/categories/:id', [auth, admin], async (req, res) => {
 });
 
 // Delete category
-router.delete('/categories/:id', [auth, admin], async (req, res) => {
+router.delete('/categories/:id', [auth, adminMiddleware], async (req, res) => {
     try {
         const category = await Category.findByIdAndDelete(req.params.id);
         if (!category) {
@@ -231,7 +231,7 @@ router.delete('/categories/:id', [auth, admin], async (req, res) => {
 });
 
 // Orders Routes
-router.get('/orders', [auth, admin], async (req, res) => {
+router.get('/orders', [auth, adminMiddleware], async (req, res) => {
     try {
         const orders = await Order.find()
             .populate('items.product')
@@ -243,7 +243,7 @@ router.get('/orders', [auth, admin], async (req, res) => {
     }
 });
 
-router.post('/orders/status', [auth, admin], async (req, res) => {
+router.post('/orders/status', [auth, adminMiddleware], async (req, res) => {
     try {
         const { orderId, status } = req.body;
         const order = await Order.findByIdAndUpdate(
@@ -262,7 +262,7 @@ router.post('/orders/status', [auth, admin], async (req, res) => {
 });
 
 // Users Routes
-router.get('/users', [auth, admin], async (req, res) => {
+router.get('/users', [auth, adminMiddleware], async (req, res) => {
     try {
         const users = await User.find()
             .select('-password_hash')
@@ -274,7 +274,7 @@ router.get('/users', [auth, admin], async (req, res) => {
     }
 });
 
-router.post('/users/status', [auth, admin], async (req, res) => {
+router.post('/users/status', [auth, adminMiddleware], async (req, res) => {
     try {
         const { userId, active } = req.body;
         const user = await User.findByIdAndUpdate(
@@ -292,26 +292,39 @@ router.post('/users/status', [auth, admin], async (req, res) => {
     }
 });
 
-router.get('/dashboard/charts', [auth, admin], async (req, res) => {
+// Protected dashboard routes
+router.get('/dashboard/stats', adminMiddleware, async (req, res) => {
     try {
-        // Get data for the last 6 months
-        const sixMonthsAgo = new Date();
-        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        const totalProducts = await Product.countDocuments();
+        const totalOrders = await Order.countDocuments();
+        const totalUsers = await User.countDocuments();
+        const totalRevenue = await Order.aggregate([
+            { $group: { _id: null, total: { $sum: "$totalAmount" } } }
+        ]);
 
-        // Revenue data
+        res.json({
+            totalProducts,
+            totalOrders,
+            totalUsers,
+            totalRevenue: totalRevenue[0]?.total || 0
+        });
+    } catch (error) {
+        console.error('Error fetching stats:', error);
+        res.status(500).json({ message: 'Error fetching statistics' });
+    }
+});
+
+router.get('/dashboard/charts', adminMiddleware, async (req, res) => {
+    try {
+        // Revenue by month
         const revenueData = await Order.aggregate([
-            {
-                $match: {
-                    createdAt: { $gte: sixMonthsAgo }
-                }
-            },
             {
                 $group: {
                     _id: { $month: "$createdAt" },
                     total: { $sum: "$totalAmount" }
                 }
             },
-            { $sort: { "_id": 1 } }
+            { $sort: { _id: 1 } }
         ]);
 
         // Order status distribution
@@ -375,7 +388,6 @@ router.get('/dashboard/charts', [auth, admin], async (req, res) => {
                 data: categories.map(item => item.count)
             }
         });
-
     } catch (error) {
         console.error('Error fetching chart data:', error);
         res.status(500).json({ message: 'Error fetching chart data' });

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const admin = require('firebase-admin');
 const Admin = require('../models/Admin');
 
 // Admin Login endpoint
@@ -82,6 +83,86 @@ router.get('/verify', async (req, res) => {
     } catch (err) {
         console.error('Token Verification Error:', err);
         res.status(401).json({ message: 'Token is not valid' });
+    }
+});
+
+// Create admin account
+router.post('/create-admin', async (req, res) => {
+    try {
+        const { name, email, firebaseUid } = req.body;
+        
+        // Verify the Firebase token if provided
+        let verifiedUid = firebaseUid;
+        const token = req.headers.authorization?.split('Bearer ')[1];
+        
+        if (token) {
+            try {
+                const decodedToken = await admin.auth().verifyIdToken(token);
+                verifiedUid = decodedToken.uid;
+            } catch (error) {
+                console.error('Token verification error:', error);
+            }
+        }
+
+        // Check if admin already exists
+        const existingAdmin = await Admin.findOne({ 
+            $or: [{ email }, { firebaseUid: verifiedUid }] 
+        });
+        
+        if (existingAdmin) {
+            return res.status(400).json({ message: 'Admin already exists' });
+        }
+
+        // Create admin in MongoDB
+        const newAdmin = new Admin({
+            name,
+            email,
+            firebaseUid: verifiedUid,
+            isAdmin: true
+        });
+
+        await newAdmin.save();
+        console.log('Admin created successfully:', newAdmin);
+        
+        res.status(201).json({ 
+            message: 'Admin created successfully',
+            admin: {
+                name: newAdmin.name,
+                email: newAdmin.email
+            }
+        });
+    } catch (error) {
+        console.error('Admin Creation Error:', error);
+        res.status(500).json({ message: 'Error creating admin' });
+    }
+});
+
+// Verify admin status
+router.get('/verify-admin', async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split('Bearer ')[1];
+        
+        if (!token) {
+            return res.status(401).json({ message: 'No token provided' });
+        }
+
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        const adminUser = await Admin.findOne({ firebaseUid: decodedToken.uid });
+
+        if (!adminUser) {
+            return res.status(403).json({ message: 'Access denied. Admin only.' });
+        }
+
+        res.json({ 
+            valid: true, 
+            admin: {
+                name: adminUser.name,
+                email: adminUser.email
+            }
+        });
+    } catch (error) {
+        console.error('Verification Error:', error);
+        res.status(401).json({ message: 'Invalid token' });
     }
 });
 

@@ -2,82 +2,67 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const admin = require('firebase-admin');
 require('dotenv').config();
+
+// Initialize Firebase Admin with the correct credentials
+admin.initializeApp({
+    credential: admin.credential.cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+    })
+});
 
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
-
-// Serve static files
 app.use(express.static('public'));
-app.use('/admin', express.static(path.join(__dirname, 'public/admin')));
 
-// Global error handler
-app.use((err, req, res, next) => {
-    console.error('Error:', err);
-    res.status(500).json({
-        message: 'Internal Server Error',
-        error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
-    });
-});
-
-// Handle 404
-// app.use((req, res) => {
-//     res.status(404).json({ message: 'Route not found' });
-// });
-
-// Improve MongoDB connection
+// MongoDB connection with error handling
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('MongoDB Connected'))
+    .then(() => {
+        console.log('MongoDB Connected Successfully');
+    })
     .catch(err => {
         console.error('MongoDB Connection Error:', err);
-        process.exit(1);
+        process.exit(1); // Exit if cannot connect to database
     });
 
+// Log MongoDB queries in development
+if (process.env.NODE_ENV !== 'production') {
+    mongoose.set('debug', true);
+}
+
 // Import routes
-const userRoutes = require('./routes/users');
-const productRoutes = require('./routes/products');
-const orderRoutes = require('./routes/orders');
-const categoryRoutes = require('./routes/categories');
-const reviewRoutes = require('./routes/reviews');
-const offerRoutes = require('./routes/offers');
+const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const setupRoutes = require('./routes/setup');
-const authRoutes = require('./routes/auth');
 
-// Use routes
-app.use('/api/users', userRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/reviews', reviewRoutes);
-app.use('/api/offers', offerRoutes);
+// Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/setup', setupRoutes);
-app.use('/api/auth', authRoutes);
 
-// Serve admin pages
-app.get('/admin/setup', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/admin/setup.html'));
+// Serve static admin files
+app.use('/admin', express.static(path.join(__dirname, 'public/admin')));
+
+// Handle admin routes for SPA
+app.get(['/admin/setup', '/admin/login', '/admin/dashboard'], (req, res) => {
+    const page = req.path.split('/').pop();
+    res.sendFile(path.join(__dirname, `public/admin/${page}.html`));
 });
 
-app.get('/admin/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/admin/login.html'));
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Server Error:', err);
+    res.status(500).json({ message: 'Internal Server Error' });
 });
 
-app.get('/admin/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/admin/dashboard.html'));
-});
-
-// Basic route
-app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to the Flower Shop API' });
-});
-
-// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
+    console.log('Environment:', process.env.NODE_ENV);
 });
