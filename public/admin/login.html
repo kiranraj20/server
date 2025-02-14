@@ -64,6 +64,12 @@
                 alert('Login failed');
             }
         });
+
+        const token = localStorage.getItem('adminToken');
+        if (!token) {
+            window.location.href = '/api/admin/setup';
+            return;
+        }
     </script>
 </body>
 </html> 

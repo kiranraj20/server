@@ -9,13 +9,27 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// MongoDB connection
+// Global error handler
+app.use((err, req, res, next) => {
+    console.error('Error:', err);
+    res.status(500).json({
+        message: 'Internal Server Error',
+        error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+    });
+});
+
+// Handle 404
+app.use((req, res) => {
+    res.status(404).json({ message: 'Route not found' });
+});
+
+// Improve MongoDB connection
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('MongoDB connected successfully'))
-  .catch((err) => {
-    console.error('MongoDB connection error:', err);
-    process.exit(1);
-  });
+    .then(() => console.log('MongoDB Connected'))
+    .catch(err => {
+        console.error('MongoDB Connection Error:', err);
+        process.exit(1);
+    });
 
 // Import routes
 const userRoutes = require('./routes/users');
@@ -39,21 +53,12 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/offers', offerRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/setup', setupRoutes);
+app.use('/api/admin/setup', setupRoutes);
 app.use('/api/auth', authRoutes);
 
 // Basic route
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the Flower Shop API' });
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error('Error:', err);
-    res.status(500).json({
-        message: 'Server error',
-        error: process.env.NODE_ENV === 'development' ? err.message : undefined
-    });
 });
 
 // Start server

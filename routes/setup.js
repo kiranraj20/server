@@ -3,6 +3,12 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const Admin = require('../models/Admin');
 
+// Serve setup page
+router.get('/', (req, res) => {
+    res.sendFile('setup.html', { root: './public/admin' });
+});
+
+// Create initial admin account
 router.post('/create-admin', async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -27,7 +33,7 @@ router.post('/create-admin', async (req, res) => {
         await admin.save();
         res.json({ message: 'Admin created successfully' });
     } catch (error) {
-        console.error(error);
+        console.error('Setup Error:', error);
         res.status(500).json({ message: 'Error creating admin' });
     }
 });
