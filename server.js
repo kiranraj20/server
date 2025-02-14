@@ -24,9 +24,9 @@ app.use((err, req, res, next) => {
 });
 
 // Handle 404
-app.use((req, res) => {
-    res.status(404).json({ message: 'Route not found' });
-});
+// app.use((req, res) => {
+//     res.status(404).json({ message: 'Route not found' });
+// });
 
 // Improve MongoDB connection
 mongoose.connect(process.env.MONGODB_URI)
