@@ -12,39 +12,39 @@
   ],
   "routes": [
     {
-      "src": "/api/admin/setup/(.*)",
+      "src": "/admin/setup/(.*)",
       "dest": "server.js"
     },
     {
-      "src": "/api/admin/(.*)",
+      "src": "/admin/(.*)",
       "dest": "server.js"
     },
     {
-      "src": "/api/auth/(.*)",
+      "src": "/auth/(.*)",
       "dest": "server.js"
     },
     {
-      "src": "/api/products/(.*)",
+      "src": "/products/(.*)",
       "dest": "server.js"
     },
     {
-      "src": "/api/orders/(.*)",
+      "src": "/orders/(.*)",
       "dest": "server.js"
     },
     {
-      "src": "/api/categories/(.*)",
+      "src": "/categories/(.*)",
       "dest": "server.js"
     },
     {
-      "src": "/api/users/(.*)",
+      "src": "/users/(.*)",
       "dest": "server.js"
     },
     {
-      "src": "/api/reviews/(.*)",
+      "src": "/reviews/(.*)",
       "dest": "server.js"
     },
     {
-      "src": "/api/offers/(.*)",
+      "src": "/offers/(.*)",
       "dest": "server.js"
     },
     {
