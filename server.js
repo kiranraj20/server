@@ -1,8 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
 const path = require('path');
 const admin = require('firebase-admin');
+const corsMiddleware = require('./middleware/cors');
 require('dotenv').config();
 
 // Initialize Firebase Admin with the correct credentials
@@ -16,13 +16,8 @@ admin.initializeApp({
 
 const app = express();
 
-// CORS configuration
-app.use(cors({
-    origin: ['https://skblossom.vercel.app', 'http://localhost:5000'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
-}));
+// Apply CORS middleware
+app.use(corsMiddleware);
 
 // Middleware
 app.use(express.json());

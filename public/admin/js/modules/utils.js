@@ -10,10 +10,12 @@ export async function fetchWithAuth(url, options = {}) {
         const token = await user.getIdToken(true); // Force token refresh
         
         const baseUrl = window.location.hostname === 'localhost' 
-            ? 'http://localhost:3000'
+            ? 'http://localhost:5000'
             : 'https://skblossom.vercel.app';
 
         const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+        
+        console.log('Fetching URL:', fullUrl); // Debug log
 
         const response = await fetch(fullUrl, {
             ...options,
@@ -26,6 +28,8 @@ export async function fetchWithAuth(url, options = {}) {
         });
 
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Response error:', response.status, errorText);
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 

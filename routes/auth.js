@@ -123,10 +123,22 @@ router.post('/create-admin', async (req, res) => {
         });
 
         await newAdmin.save();
+
+        // Set admin custom claim in Firebase
+        try {
+            await admin.auth().setCustomUserClaims(verifiedUid, { admin: true });
+            console.log('Admin claim set for user:', verifiedUid);
+        } catch (error) {
+            console.error('Error setting admin claim:', error);
+            // Delete the admin from MongoDB if Firebase claim fails
+            await Admin.findByIdAndDelete(newAdmin._id);
+            throw error;
+        }
+
         console.log('Admin created successfully:', newAdmin);
         
         res.status(201).json({ 
-            message: 'Admin created successfully',
+            message: 'Admin created successfully. Please log out and log in again to apply admin privileges.',
             admin: {
                 name: newAdmin.name,
                 email: newAdmin.email
@@ -134,15 +146,21 @@ router.post('/create-admin', async (req, res) => {
         });
     } catch (error) {
         console.error('Admin Creation Error:', error);
-        res.status(500).json({ message: 'Error creating admin' });
+        res.status(500).json({ 
+            message: 'Error creating admin',
+            error: error.message 
+        });
     }
 });
 
 // Verify admin status
 router.get('/verify-admin', async (req, res) => {
     try {
-        // Log the incoming request headers
-        console.log('Incoming headers:', req.headers);
+        // Log the incoming request
+        console.log('Verify admin request received');
+        console.log('Headers:', req.headers);
+        console.log('Method:', req.method);
+        console.log('Origin:', req.get('origin'));
 
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -151,17 +169,19 @@ router.get('/verify-admin', async (req, res) => {
         }
 
         const token = authHeader.split('Bearer ')[1];
+        console.log('Token received:', token.substring(0, 20) + '...');
         
         // Verify the Firebase token
         const decodedToken = await admin.auth().verifyIdToken(token);
-        console.log('Decoded token:', decodedToken);
+        console.log('Token verified, decoded:', decodedToken);
 
         // Check if user has admin claim
         if (decodedToken.admin !== true) {
-            console.log('User is not an admin');
-            return res.status(403).json({ error: 'Not authorized as admin' });
+            console.log('User is not an admin:', decodedToken.uid);
+            return res.status(403).json({ error: 'Not authorized as admin'});
         }
 
+        console.log('Admin verified successfully');
         // If everything is ok, send success response
         res.json({ 
             admin: {
@@ -172,7 +192,10 @@ router.get('/verify-admin', async (req, res) => {
         });
     } catch (error) {
         console.error('Verify admin error:', error);
-        res.status(403).json({ error: 'Authentication failed' });
+        res.status(403).json({ 
+            error: 'Authentication failed',
+            details: error.message
+        });
     }
 });
 
@@ -187,6 +210,80 @@ router.get('/firebase-config', (req, res) => {
     appId: process.env.FIREBASE_APP_ID
   };
   res.json(firebaseConfig);
+});
+
+// Set admin claim for existing admin
+router.post('/set-admin-claim', async (req, res) => {
+    try {
+        const { uid } = req.body;
+        
+        // Check if admin exists in MongoDB
+        const existingAdmin = await Admin.findOne({ firebaseUid: uid });
+        
+        if (!existingAdmin) {
+            return res.status(404).json({ message: 'Admin not found' });
+        }
+
+        // Set admin custom claim in Firebase
+        await admin.auth().setCustomUserClaims(uid, { admin: true });
+        console.log('Admin claim set for user:', uid);
+
+        res.json({ 
+            message: 'Admin claim set successfully. Please log out and log in again to apply admin privileges.',
+            uid
+        });
+    } catch (error) {
+        console.error('Error setting admin claim:', error);
+        res.status(500).json({ 
+            message: 'Error setting admin claim',
+            error: error.message 
+        });
+    }
+});
+
+// Add this temporary route to create admin document
+router.post('/init-admin', async (req, res) => {
+    try {
+        const adminData = {
+            name: 'Kiran Raj',
+            email: 'kiranraj80555@gmail.com',
+            firebaseUid: 'QfM49FUJ81Q9bc2EoIztRFGSFt12',
+            isAdmin: true
+        };
+
+        // Check if admin already exists
+        let admin = await Admin.findOne({ firebaseUid: adminData.firebaseUid });
+        
+        if (!admin) {
+            admin = new Admin(adminData);
+            await admin.save();
+        }
+
+        // Set admin claim in Firebase
+        await admin.auth().setCustomUserClaims(adminData.firebaseUid, { admin: true });
+        
+        res.json({ 
+            message: 'Admin initialized successfully. Please log out and log in again.',
+            admin: adminData
+        });
+    } catch (error) {
+        console.error('Init admin error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Add this temporary route to check claims
+router.get('/check-claims/:uid', async (req, res) => {
+    try {
+        const user = await admin.auth().getUser(req.params.uid);
+        res.json({
+            customClaims: user.customClaims,
+            uid: user.uid,
+            email: user.email
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 module.exports = router; 
