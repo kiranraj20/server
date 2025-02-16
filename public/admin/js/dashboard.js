@@ -3,29 +3,11 @@ import { loadCategories } from './modules/categories.js';
 import { loadOrders } from './modules/orders.js';
 import { loadUsers } from './modules/users.js';
 import { fetchWithAuth } from './modules/utils.js';
-import { auth, initializeFirebase } from './firebase-config.js';
+import { auth } from './firebase-config.js';
 
 console.log('Dashboard.js loaded');
 
-// Initialize Firebase before setting up auth observer
-document.addEventListener('DOMContentLoaded', async function() {
-    console.log('DOM Content Loaded');
-    try {
-        await initializeFirebase();
-        // Check if main-content exists
-        const mainContent = document.getElementById('main-content');
-        if (!mainContent) {
-            console.error('Main content container not found!');
-            return;
-        }
-        console.log('Main content container found');
-    } catch (error) {
-        console.error('Failed to initialize Firebase:', error);
-        window.location.href = '/admin/login';
-    }
-});
-
-// Move your auth.onAuthStateChanged to after DOMContentLoaded
+// Remove the DOMContentLoaded wrapper and handle auth state directly
 auth.onAuthStateChanged(async (user) => {
     try {
         console.log('Auth state changed:', user ? 'User logged in' : 'No user');
@@ -83,6 +65,18 @@ auth.onAuthStateChanged(async (user) => {
         console.error('Error in auth state change handler:', error);
         window.location.href = '/admin/login';
     }
+});
+
+// Make sure Firebase is initialized before setting up auth observer
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded');
+    // Check if main-content exists
+    const mainContent = document.getElementById('main-content');
+    if (!mainContent) {
+        console.error('Main content container not found!');
+        return;
+    }
+    console.log('Main content container found');
 });
 
 function showLoadingState() {

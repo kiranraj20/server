@@ -36,6 +36,6 @@ export async function fetchWithAuth(url, options = {}) {
         return response;
     } catch (error) {
         console.error('fetchWithAuth error:', error);
-        throw error;
+        throw error;    
     }
 } 
