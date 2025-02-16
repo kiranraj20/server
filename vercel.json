@@ -12,39 +12,34 @@
   ],
   "routes": [
     {
-      "src": "/api/admin/setup/(.*)",
-      "dest": "server.js"
+      "src": "/admin/statistics",
+      "dest": "server.js",
+      "methods": ["GET"],
+      "headers": {
+        "Access-Control-Allow-Origin": "https://skblossom.vercel.app",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Authorization",
+        "Access-Control-Allow-Credentials": "true"
+      }
     },
     {
-      "src": "/api/admin/(.*)",
-      "dest": "server.js"
+      "src": "/admin/dashboard/charts",
+      "dest": "server.js",
+      "methods": ["GET"],
+      "headers": {
+        "Access-Control-Allow-Origin": "https://skblossom.vercel.app",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Authorization",
+        "Access-Control-Allow-Credentials": "true"
+      }
     },
     {
-      "src": "/api/auth/(.*)",
-      "dest": "server.js"
+      "src": "/auth/(.*)",
+      "dest": "server.js",
+      "methods": ["GET", "POST", "OPTIONS"]
     },
     {
-      "src": "/api/products/(.*)",
-      "dest": "server.js"
-    },
-    {
-      "src": "/api/orders/(.*)",
-      "dest": "server.js"
-    },
-    {
-      "src": "/api/categories/(.*)",
-      "dest": "server.js"
-    },
-    {
-      "src": "/api/users/(.*)",
-      "dest": "server.js"
-    },
-    {
-      "src": "/api/reviews/(.*)",
-      "dest": "server.js"
-    },
-    {
-      "src": "/api/offers/(.*)",
+      "src": "/admin/api/(.*)",
       "dest": "server.js"
     },
     {
@@ -60,20 +55,16 @@
       "dest": "public/admin/dashboard.html"
     },
     {
-      "src": "/admin/(.*)",
-      "dest": "public/admin/$1"
+      "src": "/admin/js/(.*)",
+      "dest": "public/admin/js/$1"
+    },
+    {
+      "src": "/admin/css/(.*)",
+      "dest": "public/admin/css/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "server.js",
-      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "https://skblossom.vercel.app, http://localhost:5000",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Authorization",
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Max-Age": "86400"
-      }
+      "dest": "server.js"
     }
   ],
   "env": {
