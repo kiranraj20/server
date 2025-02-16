@@ -23,5 +23,5 @@ async function initializeFirebase() {
 }
 
 // Initialize Firebase and export auth
-await initializeFirebase();
-export { auth };
+initializeFirebase().catch(console.error);
+export { auth, initializeFirebase };
