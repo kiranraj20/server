@@ -83,7 +83,7 @@
 
                 // Verify admin status with backend
                 console.log(idToken)
-                const response = await fetch('/auth/verify-admin', {
+                const response = await fetch('/auth/verify-admin', {    
                     headers: {
                         'Authorization': `Bearer ${idToken}`
                     }
