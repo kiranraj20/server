@@ -52,6 +52,7 @@
             if (user) {
                 try {
                     const idToken = await user.getIdToken();
+                    console.log(idToken)
                     const response = await fetch('/auth/verify-admin', {
                         headers: {
                             'Authorization': `Bearer ${idToken}`
@@ -81,6 +82,7 @@
                 const idToken = await user.getIdToken();
 
                 // Verify admin status with backend
+                console.log(idToken)
                 const response = await fetch('/auth/verify-admin', {
                     headers: {
                         'Authorization': `Bearer ${idToken}`
