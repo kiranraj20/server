@@ -12,79 +12,35 @@
   ],
   "routes": [
     {
-      "src": "/api/auth/login",
+      "src": "/admin/statistics",
       "dest": "server.js",
-      "methods": ["POST", "OPTIONS"]
+      "methods": ["GET"],
+      "headers": {
+        "Access-Control-Allow-Origin": "https://skblossom.vercel.app",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Authorization",
+        "Access-Control-Allow-Credentials": "true"
+      }
     },
     {
-      "src": "/api/auth/create-admin",
+      "src": "/admin/dashboard/charts",
       "dest": "server.js",
-      "methods": ["POST", "OPTIONS"]
+      "methods": ["GET"],
+      "headers": {
+        "Access-Control-Allow-Origin": "https://skblossom.vercel.app",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Authorization",
+        "Access-Control-Allow-Credentials": "true"
+      }
     },
     {
-      "src": "/api/auth/verify-admin",
-      "dest": "server.js",
-      "methods": ["GET", "OPTIONS"]
-    },
-    {
-      "src": "/api/auth/firebase-config",
-      "dest": "server.js",
-      "methods": ["GET", "OPTIONS"]
-    },
-    {
-      "src": "/api/auth/set-admin-claim",
-      "dest": "server.js",
-      "methods": ["POST", "OPTIONS"]
-    },
-    {
-      "src": "/api/auth/init-admin",
-      "dest": "server.js",
-      "methods": ["POST", "OPTIONS"]
-    },
-    {
-      "src": "/api/auth/check-claims/.*",
-      "dest": "server.js",
-      "methods": ["GET", "OPTIONS"]
-    },
-    {
-      "src": "/api/admin/statistics",
-      "dest": "server.js",
-      "methods": ["GET", "OPTIONS"]
-    },
-    {
-      "src": "/api/admin/products",
+      "src": "/auth/(.*)",
       "dest": "server.js",
       "methods": ["GET", "POST", "OPTIONS"]
     },
     {
-      "src": "/api/admin/products/.*",
-      "dest": "server.js",
-      "methods": ["GET", "PUT", "DELETE", "OPTIONS"]
-    },
-    {
-      "src": "/api/admin/dashboard/charts",
-      "dest": "server.js",
-      "methods": ["GET", "OPTIONS"]
-    },
-    {
-      "src": "/api/admin/orders",
-      "dest": "server.js",
-      "methods": ["GET", "OPTIONS"]
-    },
-    {
-      "src": "/api/admin/orders/.*",
-      "dest": "server.js",
-      "methods": ["PUT", "OPTIONS"]
-    },
-    {
-      "src": "/api/admin/categories",
-      "dest": "server.js",
-      "methods": ["GET", "POST", "OPTIONS"]
-    },
-    {
-      "src": "/api/admin/categories/.*",
-      "dest": "server.js",
-      "methods": ["PUT", "DELETE", "OPTIONS"]
+      "src": "/admin/api/(.*)",
+      "dest": "server.js"
     },
     {
       "src": "/admin/setup",
@@ -99,12 +55,8 @@
       "dest": "public/admin/dashboard.html"
     },
     {
-      "src": "/admin/js/(.*)",
-      "dest": "public/admin/js/$1"
-    },
-    {
-      "src": "/admin/css/(.*)",
-      "dest": "public/admin/css/$1"
+      "src": "/admin/(.*)",
+      "dest": "public/admin/$1"
     },
     {
       "src": "/admin/images/(.*)",
@@ -112,37 +64,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "server.js",
-      "headers": {
-        "Access-Control-Allow-Origin": "https://skblossom.vercel.app",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Authorization",
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Max-Age": "86400"
-      }
-    }
-  ],
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "https://skblossom.vercel.app"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, PUT, DELETE, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "X-Requested-With, Content-Type, Authorization"
-        },
-        {
-          "key": "Access-Control-Allow-Credentials",
-          "value": "true"
-        }
-      ]
+      "dest": "server.js"
     }
   ],
   "env": {

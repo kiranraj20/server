@@ -7,23 +7,15 @@ export async function fetchWithAuth(url, options = {}) {
             throw new Error('No user logged in');
         }
 
-        const token = await user.getIdToken(true);
+        const token = await user.getIdToken(true); // Force token refresh
         
-        // Add /api prefix for admin routes in production
-        let apiUrl = url;
-        if (window.location.hostname !== 'localhost') {
-            if (url.startsWith('/admin/')) {
-                apiUrl = `/api${url}`;
-            }
-        }
-
         const baseUrl = window.location.hostname === 'localhost' 
             ? 'http://localhost:5000'
             : 'https://skblossom.vercel.app';
 
-        const fullUrl = url.startsWith('http') ? url : `${baseUrl}${apiUrl}`;
+        const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
         
-        console.log('Fetching URL:', fullUrl);
+        console.log('Fetching URL:', fullUrl); // Debug log
 
         const response = await fetch(fullUrl, {
             ...options,
