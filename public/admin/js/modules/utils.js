@@ -4,46 +4,34 @@ export async function fetchWithAuth(url, options = {}) {
     try {
         const user = auth.currentUser;
         if (!user) {
-            window.location.href = '/admin/login';
-            return;
+            throw new Error('No user logged in');
         }
 
-        const idToken = await user.getIdToken(true);
-        const defaultOptions = {
-            method: options.method || 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${idToken}`
-            }
-        };
+        const token = await user.getIdToken(true); // Force token refresh
+        
+        const baseUrl = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3000'
+            : 'https://skblossom.vercel.app';
 
-        const mergedOptions = {
-            ...defaultOptions,
+        const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+
+        const response = await fetch(fullUrl, {
             ...options,
             headers: {
-                ...defaultOptions.headers,
-                ...(options.headers || {})
-            }
-        };
+                ...options.headers,
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        });
 
-        console.log('Fetching:', url); // Debug log
-        const response = await fetch(url, mergedOptions);
-        
         if (!response.ok) {
-            if (response.status === 401 || response.status === 403) {
-                // Clear any stored auth data
-                await auth.signOut();
-                window.location.href = '/admin/login';
-                return;
-            }
-            const errorData = await response.json();
-            throw new Error(errorData.message || `API request failed: ${response.status} ${response.statusText}`);
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+
         return response;
     } catch (error) {
-        console.error('Fetch Error:', error);
-        // Show error to user
-        alert(`Error: ${error.message}`);
+        console.error('fetchWithAuth error:', error);
         throw error;
     }
 } 

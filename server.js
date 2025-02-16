@@ -16,8 +16,15 @@ admin.initializeApp({
 
 const app = express();
 
+// CORS configuration
+app.use(cors({
+    origin: ['https://skblossom.vercel.app', 'http://localhost:5000'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
+
 // Middleware
-app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 

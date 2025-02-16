@@ -141,30 +141,38 @@ router.post('/create-admin', async (req, res) => {
 // Verify admin status
 router.get('/verify-admin', async (req, res) => {
     try {
-        const token = req.headers.authorization?.split('Bearer ')[1];
-        console.log(token)
+        // Log the incoming request headers
+        console.log('Incoming headers:', req.headers);
+
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            console.log('No valid authorization header found');
+            return res.status(401).json({ error: 'No token provided' });
+        }
+
+        const token = authHeader.split('Bearer ')[1];
         
-        if (!token) {
-            return res.status(401).json({ message: 'No token provided' });
-        }
-
+        // Verify the Firebase token
         const decodedToken = await admin.auth().verifyIdToken(token);
-        const adminUser = await Admin.findOne({ firebaseUid: decodedToken.uid });
+        console.log('Decoded token:', decodedToken);
 
-        if (!adminUser) {
-            return res.status(403).json({ message: 'Access denied. Admin only.' });
+        // Check if user has admin claim
+        if (decodedToken.admin !== true) {
+            console.log('User is not an admin');
+            return res.status(403).json({ error: 'Not authorized as admin' });
         }
 
+        // If everything is ok, send success response
         res.json({ 
-            valid: true, 
             admin: {
-                name: adminUser.name,
-                email: adminUser.email
+                uid: decodedToken.uid,
+                email: decodedToken.email,
+                name: decodedToken.name || 'Admin'
             }
         });
     } catch (error) {
-        console.error('Verification Error:', error);
-        res.status(401).json({ message: 'Invalid token' });
+        console.error('Verify admin error:', error);
+        res.status(403).json({ error: 'Authentication failed' });
     }
 });
 
