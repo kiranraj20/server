@@ -101,7 +101,7 @@ export async function loadCategories() {
 
 async function fetchCategories() {
     try {
-        const response = await fetchWithAuth('/api/admin/categories');
+        const response = await fetchWithAuth('/admin/categories');
         const categories = await response.json();
         
         const categoriesTable = document.getElementById('categoriesTable');
@@ -163,7 +163,7 @@ async function createCategory() {
     const categoryData = Object.fromEntries(formData.entries());
 
     try {
-        const response = await fetchWithAuth('/api/admin/categories', {
+        const response = await fetchWithAuth('/admin/categories', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -189,7 +189,7 @@ async function createCategory() {
 
 async function editCategory(categoryId) {
     try {
-        const response = await fetchWithAuth(`/api/admin/categories/${categoryId}`);
+        const response = await fetchWithAuth(`/admin/categories/${categoryId}`);
         const category = await response.json();
         
         const form = document.getElementById('editCategoryForm');
@@ -216,7 +216,7 @@ async function updateCategory() {
     categoryData.active = form.active.checked;
 
     try {
-        const response = await fetchWithAuth(`/api/admin/categories/${categoryId}`, {
+        const response = await fetchWithAuth(`/admin/categories/${categoryId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -245,7 +245,7 @@ async function deleteCategory(categoryId) {
     }
 
     try {
-        const response = await fetchWithAuth(`/api/admin/categories/${categoryId}`, {
+        const response = await fetchWithAuth(`/admin/categories/${categoryId}`, {
             method: 'DELETE'
         });
 

@@ -5,147 +5,213 @@ import { loadUsers } from './modules/users.js';
 import { fetchWithAuth } from './modules/utils.js';
 import { auth } from './firebase-config.js';
 
-document.addEventListener('DOMContentLoaded', async function() {
+console.log('Dashboard.js loaded');
+
+// Remove the DOMContentLoaded wrapper and handle auth state directly
+auth.onAuthStateChanged(async (user) => {
     try {
-        // Check Firebase auth state instead of localStorage token
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                // User is signed in
-                const idToken = await user.getIdToken();
-                // Verify admin status
-                const response = await fetch('/api/auth/verify-admin', {
-                    headers: {
-                        'Authorization': `Bearer ${idToken}`
-                    }
+        console.log('Auth state changed:', user ? 'User logged in' : 'No user');
+        if (user) {
+            // User is signed in
+            const idToken = await user.getIdToken();
+            console.log('Got ID token, verifying admin status...');
+            
+            // Verify admin status
+            const response = await fetch('/auth/verify-admin', {
+                headers: {
+                    'Authorization': `Bearer ${idToken}`
+                }
+            });
+
+            if (response.ok) {
+                const adminData = await response.json();
+                console.log('Admin verified, updating UI...');
+                updateAdminUI(adminData.admin);
+                
+                // Clear any existing active states first
+                document.querySelectorAll('#sidebar a').forEach(link => {
+                    link.classList.remove('active');
                 });
 
-                if (response.ok) {
-                    // Get admin info for UI
-                    const adminData = await response.json();
-                    updateAdminUI(adminData.admin);
-                    
-                    // Set initial active state to dashboard
-                    document.querySelector('#sidebar a[data-section="dashboard"]')?.classList.add('active');
+                // Set dashboard as active and load admin name
+                const dashboardLink = document.querySelector('#sidebar a[data-section="dashboard"]');
+                if (dashboardLink) {
+                    dashboardLink.classList.add('active');
                     await loadDashboardContent();
-                    
-                    // Add sidebar navigation listeners
-                    document.querySelectorAll('#sidebar a').forEach(link => {
-                        link.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            const section = this.dataset.section;
-                            if (section) {
-                                loadSection(section);
-                            }
-                        });
-                    });
                 } else {
-                    // Not an admin, redirect to setup
-                    window.location.href = '/admin/setup';
+                    console.error('Dashboard link not found in sidebar');
                 }
+                
+                // Add sidebar navigation listeners
+                document.querySelectorAll('#sidebar a').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        console.log('Link clicked:', this.dataset.section);
+                        const section = this.dataset.section;
+                        if (section) {
+                            loadSection(section);
+                        }
+                    });
+                });
             } else {
-                // No user is signed in, redirect to login
-                window.location.href = '/admin/login';
+                console.log('Not an admin, redirecting to setup...');
+                window.location.href = '/admin/setup';
             }
-        });
+        } else {
+            console.log('No user signed in, redirecting to login...');
+            window.location.href = '/admin/login';
+        }
     } catch (error) {
-        console.error('Error initializing dashboard:', error);
+        console.error('Error in auth state change handler:', error);
         window.location.href = '/admin/login';
     }
 });
 
-async function loadDashboardContent() {
+// Make sure Firebase is initialized before setting up auth observer
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded');
+    // Check if main-content exists
     const mainContent = document.getElementById('main-content');
-    mainContent.innerHTML = `
-        <div class="row">
-            <div class="col-lg-3 col-6">
-                <div class="card stats-card primary">
-                    <div class="card-body">
-                        <h5>Total Products</h5>
-                        <h3 id="totalProducts">Loading...</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-6">
-                <div class="card stats-card success">
-                    <div class="card-body">
-                        <h5>Total Orders</h5>
-                        <h3 id="totalOrders">Loading...</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-6">
-                <div class="card stats-card warning">
-                    <div class="card-body">
-                        <h5>Total Users</h5>
-                        <h3 id="totalUsers">Loading...</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-6">
-                <div class="card stats-card danger">
-                    <div class="card-body">
-                        <h5>Total Revenue</h5>
-                        <h3 id="totalRevenue">Loading...</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
+    if (!mainContent) {
+        console.error('Main content container not found!');
+        return;
+    }
+    console.log('Main content container found');
+});
 
-        <div class="row mt-4">
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title">Revenue Overview</h5>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="revenueChart" style="height: 300px;"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title">Order Status</h5>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="orderStatusChart" style="height: 300px;"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
+function showLoadingState() {
+    const cards = ['totalProducts', 'totalOrders', 'totalUsers', 'totalRevenue'];
+    cards.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div>';
+        }
+    });
+}
 
-        <div class="row mt-4">
-            <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title">Top Products</h5>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="topProductsChart" style="height: 300px;"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title">Category Distribution</h5>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="categoryChart" style="height: 300px;"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
+async function loadDashboardContent() {
+    try {
+        console.log('Loading dashboard content...');
+        const user = auth.currentUser;
+        if (!user) {
+            console.error('No user found');
+            window.location.href = '/admin/login';
+            return;
+        }
 
-    await loadStatistics();
-    await initializeCharts();
+        const mainContent = document.getElementById('main-content');
+        if (!mainContent) {
+            console.error('Main content element not found');
+            return;
+        }
+
+        mainContent.innerHTML = `
+            <div class="row">
+                <div class="col-lg-3 col-6">
+                    <div class="card stats-card primary">
+                        <div class="card-body">
+                            <h5>Total Products</h5>
+                            <h3 id="totalProducts">Loading...</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="card stats-card success">
+                        <div class="card-body">
+                            <h5>Total Orders</h5>
+                            <h3 id="totalOrders">Loading...</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="card stats-card warning">
+                        <div class="card-body">
+                            <h5>Total Users</h5>
+                            <h3 id="totalUsers">Loading...</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="card stats-card danger">
+                        <div class="card-body">
+                            <h5>Total Revenue</h5>
+                            <h3 id="totalRevenue">Loading...</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Revenue Overview</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="revenueChart" style="height: 300px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Order Status</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="orderStatusChart" style="height: 300px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Top Products</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="topProductsChart" style="height: 300px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Category Distribution</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="categoryChart" style="height: 300px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        showLoadingState();
+        await loadStatistics();
+        await initializeCharts();
+        console.log('Dashboard content loaded successfully');
+    } catch (error) {
+        console.error('Error in loadDashboardContent:', error);
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            mainContent.innerHTML = `
+                <div class="alert alert-danger">
+                    Error loading dashboard content. Please try refreshing the page.
+                </div>
+            `;
+        }
+    }
 }
 
 async function loadStatistics() {
     try {
-        const response = await fetchWithAuth('/api/admin/statistics');
+        console.log('Fetching statistics...');
+        const response = await fetchWithAuth('/admin/statistics');
+        console.log('Statistics response:', response);
         const data = await response.json();
+        console.log('Statistics data:', data);
         
         document.getElementById('totalProducts').textContent = data.totalProducts || 0;
         document.getElementById('totalOrders').textContent = data.totalOrders || 0;
@@ -153,17 +219,23 @@ async function loadStatistics() {
         document.getElementById('totalRevenue').textContent = `$${data.totalRevenue || 0}`;
     } catch (error) {
         console.error('Error loading statistics:', error);
+        // Show error message to user
         const elements = ['totalProducts', 'totalOrders', 'totalUsers', 'totalRevenue'];
         elements.forEach(id => {
-            document.getElementById(id).textContent = 'Error';
+            const element = document.getElementById(id);
+            element.textContent = 'Error loading data';
+            element.style.color = 'red';
         });
     }
 }
 
 async function initializeCharts() {
     try {
-        const response = await fetchWithAuth('/api/admin/dashboard/charts');
+        console.log('Fetching chart data...');
+        const response = await fetchWithAuth('/admin/dashboard/charts');
+        console.log('Charts response:', response);
         const data = await response.json();
+        console.log('Charts data:', data);
 
         // Revenue Chart (Line chart)
         new Chart(document.getElementById('revenueChart'), {

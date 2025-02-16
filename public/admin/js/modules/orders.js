@@ -26,7 +26,7 @@ export async function loadOrders() {
 
 async function fetchOrders() {
     try {
-        const response = await fetchWithAuth('/api/admin/orders');
+        const response = await fetchWithAuth('/admin/orders');
         const orders = await response.json();
         
         const ordersTable = document.getElementById('ordersTable');

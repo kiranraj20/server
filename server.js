@@ -42,9 +42,9 @@ const adminRoutes = require('./routes/admin');
 const setupRoutes = require('./routes/setup');
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/admin/setup', setupRoutes);
+app.use('/auth', authRoutes);
+app.use('/admin', adminRoutes);
+app.use('/admin/setup', setupRoutes);
 
 // Serve static admin files
 app.use('/admin', express.static(path.join(__dirname, 'public/admin')));

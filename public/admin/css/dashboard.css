@@ -87,9 +87,9 @@
 }
 
 #sidebar a {
-    color: #f8f9fa;
-    text-decoration: none;
+    color: #fff;
     padding: 10px 15px;
+    text-decoration: none;
     display: block;
     transition: all 0.3s;
 }
@@ -99,8 +99,10 @@
 }
 
 #sidebar a.active {
-    background: rgba(255, 255, 255, 0.2);
+    background: #007bff;
+    color: white;
     border-left: 4px solid #fff;
+    font-weight: bold;
 }
 
 #sidebar a.active i {

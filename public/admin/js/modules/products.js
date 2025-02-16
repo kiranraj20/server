@@ -10,7 +10,7 @@ window.updateProduct = updateProduct;
 // Add a function to fetch categories
 async function fetchCategoryOptions() {
     try {
-        const response = await fetchWithAuth('/api/admin/categories');
+        const response = await fetchWithAuth('/admin/categories');
         const categories = await response.json();
         return categories
             .filter(category => category.active) // Only show active categories
@@ -171,7 +171,7 @@ export async function loadProducts() {
 
 async function fetchProducts() {
     try {
-        const response = await fetchWithAuth('/api/admin/products');
+        const response = await fetchWithAuth('/admin/products');
         const products = await response.json();
         
         const productsTable = document.getElementById('productsTable');
@@ -243,7 +243,7 @@ async function createProduct() {
     productData.stock = parseInt(productData.stock);
 
     try {
-        const response = await fetchWithAuth('/api/admin/products', {
+        const response = await fetchWithAuth('/admin/products', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -320,7 +320,7 @@ async function updateProduct() {
     productData.stock = parseInt(productData.stock);
 
     try {
-        const response = await fetchWithAuth(`/api/admin/products/${productId}`, {
+        const response = await fetchWithAuth(`/admin/products/${productId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -349,7 +349,7 @@ async function deleteProduct(productId) {
     }
 
     try {
-        const response = await fetchWithAuth(`/api/admin/products/${productId}`, {
+        const response = await fetchWithAuth(`/admin/products/${productId}`, {
             method: 'DELETE'
         });
 

@@ -37,7 +37,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" required>
+                    <input type="password" class="form-control" id="password" required autocomplete="current-password">
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Login</button>
             </form>
@@ -52,7 +52,7 @@
             if (user) {
                 try {
                     const idToken = await user.getIdToken();
-                    const response = await fetch('/api/auth/verify-admin', {
+                    const response = await fetch('/auth/verify-admin', {
                         headers: {
                             'Authorization': `Bearer ${idToken}`
                         }
@@ -81,7 +81,7 @@
                 const idToken = await user.getIdToken();
 
                 // Verify admin status with backend
-                const response = await fetch('/api/auth/verify-admin', {
+                const response = await fetch('/auth/verify-admin', {
                     headers: {
                         'Authorization': `Bearer ${idToken}`
                     }
@@ -118,5 +118,6 @@
             }
         });
     </script>
+    <script type="module" src="../admin/js/firebase-config.js"></script>
 </body>
 </html> 

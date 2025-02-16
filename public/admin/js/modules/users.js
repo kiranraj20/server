@@ -26,7 +26,7 @@ export async function loadUsers() {
 
 async function fetchUsers() {
     try {
-        const response = await fetchWithAuth('/api/admin/users');
+        const response = await fetchWithAuth('/admin/users');
         const users = await response.json();
         
         const usersTable = document.getElementById('usersTable');
@@ -92,7 +92,7 @@ function viewUser(id) {
 
 async function toggleUserStatus(id, active) {
     try {
-        const response = await fetchWithAuth('/api/admin/users/status', {
+        const response = await fetchWithAuth('/admin/users/status', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
