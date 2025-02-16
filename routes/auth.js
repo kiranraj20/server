@@ -70,6 +70,7 @@ router.get('/verify', async (req, res) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-default-secret');
+        console.log(decoded)
         if (!decoded.admin) {
             return res.status(403).json({ message: 'Not authorized as admin' });
         }
