@@ -12,35 +12,79 @@
   ],
   "routes": [
     {
-      "src": "/admin/statistics",
+      "src": "/api/auth/login",
       "dest": "server.js",
-      "methods": ["GET"],
-      "headers": {
-        "Access-Control-Allow-Origin": "https://skblossom.vercel.app",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Authorization",
-        "Access-Control-Allow-Credentials": "true"
-      }
+      "methods": ["POST", "OPTIONS"]
     },
     {
-      "src": "/admin/dashboard/charts",
+      "src": "/api/auth/create-admin",
       "dest": "server.js",
-      "methods": ["GET"],
-      "headers": {
-        "Access-Control-Allow-Origin": "https://skblossom.vercel.app",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Authorization",
-        "Access-Control-Allow-Credentials": "true"
-      }
+      "methods": ["POST", "OPTIONS"]
     },
     {
-      "src": "/auth/(.*)",
+      "src": "/api/auth/verify-admin",
+      "dest": "server.js",
+      "methods": ["GET", "OPTIONS"]
+    },
+    {
+      "src": "/api/auth/firebase-config",
+      "dest": "server.js",
+      "methods": ["GET", "OPTIONS"]
+    },
+    {
+      "src": "/api/auth/set-admin-claim",
+      "dest": "server.js",
+      "methods": ["POST", "OPTIONS"]
+    },
+    {
+      "src": "/api/auth/init-admin",
+      "dest": "server.js",
+      "methods": ["POST", "OPTIONS"]
+    },
+    {
+      "src": "/api/auth/check-claims/.*",
+      "dest": "server.js",
+      "methods": ["GET", "OPTIONS"]
+    },
+    {
+      "src": "/api/admin/statistics",
+      "dest": "server.js",
+      "methods": ["GET", "OPTIONS"]
+    },
+    {
+      "src": "/api/admin/products",
       "dest": "server.js",
       "methods": ["GET", "POST", "OPTIONS"]
     },
     {
-      "src": "/admin/api/(.*)",
-      "dest": "server.js"
+      "src": "/api/admin/products/.*",
+      "dest": "server.js",
+      "methods": ["GET", "PUT", "DELETE", "OPTIONS"]
+    },
+    {
+      "src": "/api/admin/dashboard/charts",
+      "dest": "server.js",
+      "methods": ["GET", "OPTIONS"]
+    },
+    {
+      "src": "/api/admin/orders",
+      "dest": "server.js",
+      "methods": ["GET", "OPTIONS"]
+    },
+    {
+      "src": "/api/admin/orders/.*",
+      "dest": "server.js",
+      "methods": ["PUT", "OPTIONS"]
+    },
+    {
+      "src": "/api/admin/categories",
+      "dest": "server.js",
+      "methods": ["GET", "POST", "OPTIONS"]
+    },
+    {
+      "src": "/api/admin/categories/.*",
+      "dest": "server.js",
+      "methods": ["PUT", "DELETE", "OPTIONS"]
     },
     {
       "src": "/admin/setup",
@@ -63,8 +107,42 @@
       "dest": "public/admin/css/$1"
     },
     {
+      "src": "/admin/images/(.*)",
+      "dest": "public/admin/images/$1"
+    },
+    {
       "src": "/(.*)",
-      "dest": "server.js"
+      "dest": "server.js",
+      "headers": {
+        "Access-Control-Allow-Origin": "https://skblossom.vercel.app",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Authorization",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Max-Age": "86400"
+      }
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://skblossom.vercel.app"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "X-Requested-With, Content-Type, Authorization"
+        },
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
+        }
+      ]
     }
   ],
   "env": {
