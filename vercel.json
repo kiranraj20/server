@@ -62,27 +62,27 @@
       "dest": "server.js"
     },
     {
-      "src": "/products/(.*)",
+      "src": "(.*)/products/(.*)",
       "dest": "server.js"
     },
     {
-      "src": "/orders/(.*)",
+      "src": "(.*)/orders/(.*)",
       "dest": "server.js"
     },
     {
-      "src": "/categories/(.*)",
+      "src": "(.*)/categories/(.*)",
       "dest": "server.js"
     },
     {
-      "src": "/users/(.*)",
+      "src": "(.*)/users/(.*)",
       "dest": "server.js"
     },
     {
-      "src": "/reviews/(.*)",
+      "src": "(.*)/reviews/(.*)",
       "dest": "server.js"
     },
     {
-      "src": "/offers/(.*)",
+      "src": "(.*)/offers/(.*)",
       "dest": "server.js"
     },
 
