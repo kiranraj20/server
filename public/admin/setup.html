@@ -48,7 +48,8 @@
     </div>
 
     <script type="module">
-        import { auth } from '../admin/js/firebase-config.js';
+        const configModule = await import('./js/firebase-config.js');
+        const auth = configModule.auth;
 
         document.getElementById('setupForm').addEventListener('submit', async (e) => {
             e.preventDefault();

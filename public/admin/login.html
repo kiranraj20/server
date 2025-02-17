@@ -45,7 +45,8 @@
     </div>
 
     <script type="module">
-        import { auth } from '../admin/js/firebase-config.js';
+        const configModule = await import('./js/firebase-config.js');
+        const auth = configModule.auth;
 
         // Add auth state observer
         auth.onAuthStateChanged(async user => {
@@ -120,6 +121,6 @@
             }
         });
     </script>
-    <script type="module" src="../admin/js/firebase-config.js"></script>
+    <script type="module" src="./js/firebase-config.js"></script>
 </body>
 </html> 

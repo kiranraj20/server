@@ -85,6 +85,10 @@
       "src": "(.*)/offers/(.*)",
       "dest": "server.js"
     },
+    {
+      "src": "/js/firebase-config.js",
+      "dest": "public/admin/js/firebase-config.js"
+    },
 
 
     {
