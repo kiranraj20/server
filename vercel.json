@@ -66,6 +66,18 @@
       "dest": "server.js"
     },
     {
+      "src": "(.*)/statistics/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "(.*)/dashboard/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "(.*)/dashboard/charts/(.*)",
+      "dest": "server.js"
+    },
+    {
       "src": "(.*)/orders/(.*)",
       "dest": "server.js"
     },

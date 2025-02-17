@@ -15,7 +15,8 @@ export async function fetchWithAuth(url, options = {}) {
 
         const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
         
-        console.log('Fetching URL:', fullUrl); // Debug log
+        console.log('Fetching URL:', fullUrl);
+        console.log(token) // Debug log
 
         const response = await fetch(fullUrl, {
             ...options,
