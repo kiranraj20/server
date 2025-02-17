@@ -1,9 +1,9 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const admin = require('firebase-admin');
-const Admin = require('../models/Admin');
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import admin from 'firebase-admin';
+import Admin from '../models/Admin.js';
 
 // Admin Login endpoint
 router.post('/login', async (req, res) => {
@@ -286,4 +286,4 @@ router.get('/check-claims/:uid', async (req, res) => {
     }
 });
 
-module.exports = router; 
+export default router; 

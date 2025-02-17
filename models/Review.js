@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+import mongoose from 'mongoose';
+import Schema from 'mongoose';
 
 const reviewSchema = new Schema({
   user_id: {
@@ -26,4 +26,4 @@ const reviewSchema = new Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model('Review', reviewSchema); 
+export default mongoose.model('Review', reviewSchema); 

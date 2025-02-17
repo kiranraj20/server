@@ -1,8 +1,8 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const Offer = require('../models/Offer');
-const Product = require('../models/Product');
-const Category = require('../models/Category');
+import Offer from '../models/Offer';
+import Product from '../models/Product';
+import Category from '../models/Category';
 
 // Get all active offers
 router.get('/', async (req, res) => {

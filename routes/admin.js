@@ -1,11 +1,11 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const auth = require('../middleware/auth');
-const adminMiddleware = require('../middleware/admin');
-const Product = require('../models/Product');
-const Order = require('../models/Order');
-const User = require('../models/User');
-const Category = require('../models/Category');
+import auth from '../middleware/auth.js';
+import adminMiddleware from '../middleware/admin.js';
+import Product from '../models/Product.js';
+import Order from '../models/Order.js';
+import User from '../models/User.js';
+import Category from '../models/Category.js';
 
 // Protected API routes
 router.get('/statistics', [auth, adminMiddleware], async (req, res) => {
@@ -394,4 +394,4 @@ router.get('/dashboard/charts', adminMiddleware, async (req, res) => {
     }
 });
 
-module.exports = router; 
+export default router; 

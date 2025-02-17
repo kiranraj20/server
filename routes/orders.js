@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const Order = require('../models/Order');
-const OrderItem = require('../models/OrderItem');
+import Order from '../models/Order';
+import OrderItem from '../models/OrderItem';
 
 // Get all orders
 router.get('/', async (req, res) => {

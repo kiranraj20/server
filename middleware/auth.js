@@ -1,5 +1,6 @@
-const admin = require('firebase-admin');
-const Admin = require('../models/Admin');
+import admin from 'firebase-admin';
+import Admin from '../models/Admin.js';
+
 
 const auth = async (req, res, next) => {
     try {
@@ -28,4 +29,4 @@ const auth = async (req, res, next) => {
     }
 };
 
-module.exports = auth; 
+export default auth; 

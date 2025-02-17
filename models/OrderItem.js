@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+import mongoose from 'mongoose';
+import Schema from 'mongoose';
 
 const orderItemSchema = new Schema({
   order_id: {
@@ -24,4 +24,4 @@ const orderItemSchema = new Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model('OrderItem', orderItemSchema); 
+export default mongoose.model('OrderItem', orderItemSchema); 

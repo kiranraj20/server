@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const bcrypt = require('bcrypt');
-const Admin = require('../models/Admin');
+import bcrypt from 'bcrypt';
+import Admin from '../models/Admin.js';
 
 // Create initial admin account
 router.post('/create-admin', async (req, res) => {
@@ -33,4 +33,4 @@ router.post('/create-admin', async (req, res) => {
     }
 });
 
-module.exports = router; 
+export default router;

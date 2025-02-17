@@ -1,5 +1,5 @@
-const admin = require('firebase-admin');
-const Admin = require('../models/Admin');
+import admin from 'firebase-admin';
+import Admin from '../models/Admin.js';
 
 const adminMiddleware = async (req, res, next) => {
     try {
@@ -28,4 +28,4 @@ const adminMiddleware = async (req, res, next) => {
     }
 };
 
-module.exports = adminMiddleware; 
+export default adminMiddleware; 

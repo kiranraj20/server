@@ -1,6 +1,6 @@
 const allowedOrigins = ['https://skblossom.vercel.app', 'http://localhost:5000'];
 
-module.exports = function(req, res, next) {
+const corsMiddleware = function(req, res, next) {
     const origin = req.headers.origin;
     
     if (allowedOrigins.includes(origin)) {
@@ -17,3 +17,5 @@ module.exports = function(req, res, next) {
 
     next();
 }; 
+
+export default corsMiddleware;

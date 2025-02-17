@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+import mongoose from 'mongoose';
+import Schema from 'mongoose';
 
 const offerSchema = new Schema({
   title: {
@@ -58,4 +58,4 @@ const offerSchema = new Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model('Offer', offerSchema); 
+export default mongoose.model('Offer', offerSchema); 

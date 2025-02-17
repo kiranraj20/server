@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const Product = require('../models/Product');
+import Product from '../models/Product';
 
 // Get all products
 router.get('/', async (req, res) => {
