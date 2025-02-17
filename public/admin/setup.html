@@ -14,16 +14,6 @@
             border-radius: 5px;
         }
     </style>
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getAuth, createUserWithEmailAndPassword, browserSessionPersistence, setPersistence } 
-        from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
-        window.getAuth = getAuth;
-        window.initializeApp = initializeApp;
-        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-        window.browserSessionPersistence = browserSessionPersistence;
-        window.setPersistence = setPersistence;
-    </script>
 </head>
 <body>
     <div class="container">
@@ -49,6 +39,7 @@
 
     <script type="module">
         const { auth } = await import('./js/firebase-config.js');
+        const { createUserWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js');
 
         document.getElementById('setupForm').addEventListener('submit', async (e) => {
             e.preventDefault();

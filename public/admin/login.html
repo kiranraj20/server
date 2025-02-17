@@ -14,17 +14,6 @@
             border-radius: 5px;
         }
     </style>
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getAuth, signInWithEmailAndPassword, browserSessionPersistence, setPersistence } 
-        from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
-        window.getAuth = getAuth;
-        window.initializeApp = initializeApp;
-        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-        window.browserSessionPersistence = browserSessionPersistence;
-        window.setPersistence = setPersistence;
-    </script>
 </head>
 <body>
     <div class="container">
@@ -45,14 +34,15 @@
     </div>
 
     <script type="module">
-        const { auth } = await import('./js/firebase-config.js');
+        import { auth } from './js/firebase-config.js';
+        import { signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
         // Add auth state observer
         auth.onAuthStateChanged(async user => {
             if (user) {
                 try {
                     const idToken = await user.getIdToken();
-                    console.log(idToken)
+                    console.log(idToken);
                     const response = await fetch('/auth/verify-admin', {
                         headers: {
                             'Authorization': `Bearer ${idToken}`
@@ -82,7 +72,7 @@
                 const idToken = await user.getIdToken();
 
                 // Verify admin status with backend
-                console.log(idToken)
+                console.log(idToken);
                 const response = await fetch('/auth/verify-admin', {
                     headers: {
                         'Authorization': `Bearer ${idToken}`
@@ -120,6 +110,5 @@
             }
         });
     </script>
-    <script type="module" src="./js/firebase-config.js"></script>
 </body>
-</html> 
+</html>
