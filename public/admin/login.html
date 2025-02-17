@@ -35,8 +35,8 @@
 
     <script type="module" src="./js/firebase-config.js"></script>
     <script type="module">
-        import { auth } from './js/firebase-config.js';
-        import { signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        const { auth } = await import('./js/firebase-config.js');
+        const { signInWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js');
 
         // Add auth state observer
         auth.onAuthStateChanged(async user => {
