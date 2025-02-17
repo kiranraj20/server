@@ -66,15 +66,27 @@
       "dest": "server.js"
     },
     {
-      "src": "(.*)/statistics/(.*)",
+      "src": "/admin/statistics",
       "dest": "server.js"
     },
     {
-      "src": "(.*)/dashboard/(.*)",
+      "src": "/admin/statistics/(.*)",
       "dest": "server.js"
     },
     {
-      "src": "(.*)/dashboard/charts/(.*)",
+      "src": "/api/statistics/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/admin/dashboard/charts",
+      "dest": "server.js"
+    },
+    {
+      "src": "/admin/dashboard/charts/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api/dashboard/charts/(.*)",
       "dest": "server.js"
     },
     {
