@@ -22,8 +22,7 @@ const productSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        required: true,
-        ref: 'Category'  // Reference to Category model
+        required: true
     },
     size: {
         type: String,

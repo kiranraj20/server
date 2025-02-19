@@ -6,6 +6,8 @@ import corsMiddleware from './middleware/cors.js';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import userAuthRoutes from './routes/user-auth.js';
+import userRoutes from './routes/user.js';
 
 dotenv.config();
 // Check if required Firebase Admin variables are present
@@ -64,6 +66,10 @@ import setupRoutes from './routes/setup.js';
 app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
 app.use('/admin/setup', setupRoutes);
+
+// User routes
+app.use('/user/auth', userAuthRoutes);
+app.use('/user', userRoutes);
 
 // Serve static admin files
 app.use('/admin', express.static(path.join(__dirname, 'public/admin')));
