@@ -2,12 +2,12 @@ import express from "express";
 const router = express.Router();
 import admin from "firebase-admin";
 import User from "../models/User.js";
+import bcrypt from 'bcrypt';
 
 // User Registration
 router.post("/create-user", async (req, res) => {
     try {
-        const { name, email, firebaseUid } = req.body;
-        console.log('Req.body:',req.body)
+        const { name, email, firebaseUid, password } = req.body;
 
         // Verify the Firebase token if provided
         let verifiedUid = firebaseUid;
@@ -31,11 +31,14 @@ router.post("/create-user", async (req, res) => {
             return res.status(400).json({ message: "User already exists" });
         }
 
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         // Create user in MongoDB
         const newUser = new User({
             name,
             email,
             firebaseUid: verifiedUid,
+            password: hashedPassword,
             isAdmin: false,
         });
 
