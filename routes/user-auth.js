@@ -38,7 +38,7 @@ router.post("/create-user", async (req, res) => {
             name,
             email,
             firebaseUid: verifiedUid,
-            password: hashedPassword,
+            password_hash: hashedPassword,
             isAdmin: false,
         });
 
