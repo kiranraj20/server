@@ -82,12 +82,19 @@ router.post("/create-user", async (req, res) => {
 });
 
 // Verify user status
-router.get("/login", async (req, res) => {
+router.post("/login", async (req, res) => {
     try {
         const { email, password, firebaseUid } = req.body;
+
+        // Validate request body
+        if (!email || !password || !firebaseUid) {
+            console.log('❌ Missing required fields:', { email, password, firebaseUid });
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
         console.log('👉 Login attempt:', { email });
 
-        // Find admin
+        // Find user
         const user = await User.findOne({ email });
         if (!user) {
             console.log('❌ User not found:', email);
@@ -96,17 +103,27 @@ router.get("/login", async (req, res) => {
 
         // Verify password
         const isMatch = await bcrypt.compare(password, user.password_hash);
-        if (!isMatch || firebaseUid != user.firebaseUid ) {
+        if (!isMatch) {
             console.log('❌ Invalid password for:', email);
-            return res.status(400).json({ message: 'Invalid credentials' }); 
+            return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        console.log('✅ Password verified for:', email);
+        // Verify Firebase UID
+        if (firebaseUid !== user.firebaseUid) {
+            console.log('❌ Invalid Firebase UID for:', email);
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
 
-        res.status(201).json({
-            message:
-                "User logged successfully.",
-            user,
+        console.log('✅ Login successful for:', email);
+
+        // Send success response
+        res.status(200).json({
+            message: "User logged in successfully.",
+            user: {
+                id: user._id,
+                email: user.email,
+                firebaseUid: user.firebaseUid,
+            },
         });
     } catch (err) {
         console.error('❌ Login Error:', err);
