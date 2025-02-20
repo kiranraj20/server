@@ -106,7 +106,7 @@ router.get("/login", async (req, res) => {
         res.status(201).json({
             message:
                 "User logged successfully.",
-            user: user,
+            user: {user},
         });
     } catch (err) {
         console.error('❌ Login Error:', err);
