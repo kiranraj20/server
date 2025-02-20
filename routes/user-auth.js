@@ -84,7 +84,7 @@ router.post("/create-user", async (req, res) => {
 // Verify user status
 router.get("/login", async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, firebaseUid } = req.body;
         console.log('👉 Login attempt:', { email });
 
         // Find admin
@@ -96,9 +96,9 @@ router.get("/login", async (req, res) => {
 
         // Verify password
         const isMatch = await bcrypt.compare(password, user.password_hash);
-        if (!isMatch) {
+        if (!isMatch || firebaseUid != user.firebaseUid ) {
             console.log('❌ Invalid password for:', email);
-            return res.status(400).json({ message: 'Invalid credentials' });
+            return res.status(400).json({ message: 'Invalid credentials' }); 
         }
 
         console.log('✅ Password verified for:', email);
@@ -106,7 +106,7 @@ router.get("/login", async (req, res) => {
         res.status(201).json({
             message:
                 "User logged successfully.",
-            user: {user},
+            user,
         });
     } catch (err) {
         console.error('❌ Login Error:', err);
