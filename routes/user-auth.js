@@ -9,6 +9,11 @@ router.post("/create-user", async (req, res) => {
     try {
         const { name, email, firebaseUid, password } = req.body;
 
+        // Validate required fields
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: "Name, email, and password are required" });
+        }
+
         // Verify the Firebase token if provided
         let verifiedUid = firebaseUid;
         const token = req.headers.authorization?.split("Bearer ")[1];
@@ -19,16 +24,17 @@ router.post("/create-user", async (req, res) => {
                 verifiedUid = decodedToken.uid;
             } catch (error) {
                 console.error("Token verification error:", error);
+                return res.status(401).json({ message: "Invalid or expired token" });
             }
         }
 
         // Check if user already exists
         const existingUser = await User.findOne({ email });
-
         if (existingUser) {
             return res.status(400).json({ message: "User already exists" });
         }
 
+        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create user in MongoDB
@@ -47,12 +53,17 @@ router.post("/create-user", async (req, res) => {
             await admin.auth().setCustomUserClaims(verifiedUid, { admin: false });
         } catch (error) {
             console.error("Error setting admin claim:", error);
+            // Rollback: Delete the user from MongoDB if Firebase claim fails
             await User.findByIdAndDelete(newUser._id);
-            throw error;
+            return res.status(500).json({
+                message: "Error setting user privileges in Firebase",
+                error: error.message,
+            });
         }
 
         console.log("User created successfully:", newUser);
 
+        // Respond with success
         res.status(201).json({
             message:
                 "User created successfully. Please log out and log in again to apply user privileges.",
