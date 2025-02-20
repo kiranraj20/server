@@ -103,34 +103,11 @@ router.get("/login", async (req, res) => {
 
         console.log('✅ Password verified for:', email);
 
-        // Create JWT payload
-        // const payload = {
-        //     user: {
-        //         id: user.id,
-        //         name: user.name,
-        //         email: user.email,
-        //         role: 'user'
-        //     }
-        // };
-
-        // Sign token
-        // jwt.sign(
-        //     payload,
-        //     process.env.JWT_SECRET || 'your-default-secret',
-        //     { expiresIn: '24h' },
-        //     (err, token) => {
-        //         if (err) {
-        //             console.error('❌ JWT Sign Error:', err);
-        //             return res.status(500).json({ message: 'Error generating token' });
-        //         }
-        //         console.log('✅ Token generated successfully');
-        //         console.log('🔑 Token:', token);
-        //         res.json({
-        //             token,
-        //             admin: payload.admin
-        //         });
-        //     }
-        // );
+        res.status(201).json({
+            message:
+                "User logged successfully.",
+            user: user,
+        });
     } catch (err) {
         console.error('❌ Login Error:', err);
         res.status(500).json({ message: 'Server error' });
