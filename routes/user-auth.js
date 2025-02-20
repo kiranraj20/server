@@ -1,119 +1,143 @@
-import express from 'express';
+import express from "express";
 const router = express.Router();
-import admin from 'firebase-admin';
-import User from '../models/User.js';
+import admin from "firebase-admin";
+import User from "../models/User.js";
 
 // User Registration
-router.post('/register', async (req, res) => {
+router.post("/create-user", async (req, res) => {
     try {
-        const { name, email, phone, address, firebaseUid } = req.body;
-        
-        // Verify Firebase token if provided
+        const { name, email, firebaseUid } = req.body;
+        console.log('Req.body:',req.body)
+
+        // Verify the Firebase token if provided
         let verifiedUid = firebaseUid;
-        const token = req.headers.authorization?.split('Bearer ')[1];
-        
+        const token = req.headers.authorization?.split("Bearer ")[1];
+
         if (token) {
             try {
                 const decodedToken = await admin.auth().verifyIdToken(token);
                 verifiedUid = decodedToken.uid;
             } catch (error) {
-                console.error('Token verification error:', error);
-                return res.status(401).json({ message: 'Invalid token' });
+                console.error("Token verification error:", error);
             }
         }
 
         // Check if user already exists
-        const existingUser = await User.findOne({ 
-            $or: [{ email }, { firebaseUid: verifiedUid }] 
+        const existingUser = await User.findOne({
+            $or: [{ email }, { firebaseUid: verifiedUid }],
         });
-        
+
         if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
+            return res.status(400).json({ message: "User already exists" });
         }
 
         // Create user in MongoDB
         const newUser = new User({
             name,
             email,
-            phone,
-            address,
             firebaseUid: verifiedUid,
-            role: 'customer'
+            isAdmin: false,
         });
 
         await newUser.save();
-        
-        res.status(201).json({ 
-            message: 'User registered successfully',
+
+        // Set user custom claim in Firebase
+        try {
+            await admin.auth().setCustomUserClaims(verifiedUid, { admin: false });
+        } catch (error) {
+            console.error("Error setting admin claim:", error);
+            await User.findByIdAndDelete(newUser._id);
+            throw error;
+        }
+
+        console.log("User created successfully:", newUser);
+
+        res.status(201).json({
+            message:
+                "User created successfully. Please log out and log in again to apply user privileges.",
             user: {
                 name: newUser.name,
-                email: newUser.email
-            }
+                email: newUser.email,
+            },
         });
     } catch (error) {
-        console.error('User Registration Error:', error);
-        res.status(500).json({ 
-            message: 'Error registering user',
-            error: error.message 
+        console.error("User Creation Error:", error);
+        res.status(500).json({
+            message: "Error creating user",
+            error: error.message,
         });
     }
 });
 
 // Verify user status
-router.get('/verify', async (req, res) => {
+router.get("/login", async (req, res) => {
     try {
-        const token = req.headers.authorization?.split('Bearer ')[1];
-        if (!token) {
-            return res.status(401).json({ error: 'No token provided' });
-        }
+        const { email, password } = req.body;
+        console.log('👉 Login attempt:', { email });
 
-        // Verify the Firebase token
-        const decodedToken = await admin.auth().verifyIdToken(token);
-        
-        // Get user from database
-        const user = await User.findOne({ firebaseUid: decodedToken.uid })
-            .select('-password_hash');
-
+        // Find admin
+        const user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+            console.log('❌ User not found:', email);
+            return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        if (!user.active) {
-            return res.status(403).json({ error: 'Account is inactive' });
+        // Verify password
+        const isMatch = await bcrypt.compare(password, user.password_hash);
+        if (!isMatch) {
+            console.log('❌ Invalid password for:', email);
+            return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        res.json({ 
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                phone: user.phone,
-                address: user.address,
-                role: user.role
-            }
-        });
-    } catch (error) {
-        console.error('Verify user error:', error);
-        res.status(403).json({ 
-            error: 'Authentication failed',
-            details: error.message
-        });
+        console.log('✅ Password verified for:', email);
+
+        // Create JWT payload
+        // const payload = {
+        //     user: {
+        //         id: user.id,
+        //         name: user.name,
+        //         email: user.email,
+        //         role: 'user'
+        //     }
+        // };
+
+        // Sign token
+        // jwt.sign(
+        //     payload,
+        //     process.env.JWT_SECRET || 'your-default-secret',
+        //     { expiresIn: '24h' },
+        //     (err, token) => {
+        //         if (err) {
+        //             console.error('❌ JWT Sign Error:', err);
+        //             return res.status(500).json({ message: 'Error generating token' });
+        //         }
+        //         console.log('✅ Token generated successfully');
+        //         console.log('🔑 Token:', token);
+        //         res.json({
+        //             token,
+        //             admin: payload.admin
+        //         });
+        //     }
+        // );
+    } catch (err) {
+        console.error('❌ Login Error:', err);
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
 // Update user profile
-router.put('/profile', async (req, res) => {
+router.put("/profile", async (req, res) => {
     try {
-        const token = req.headers.authorization?.split('Bearer ')[1];
+        const token = req.headers.authorization?.split("Bearer ")[1];
         if (!token) {
-            return res.status(401).json({ message: 'No token provided' });
+            return res.status(401).json({ message: "No token provided" });
         }
 
         const decodedToken = await admin.auth().verifyIdToken(token);
         const user = await User.findOne({ firebaseUid: decodedToken.uid });
 
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: "User not found" });
         }
 
         const { name, phone, address } = req.body;
@@ -126,18 +150,18 @@ router.put('/profile', async (req, res) => {
         await user.save();
 
         res.json({
-            message: 'Profile updated successfully',
+            message: "Profile updated successfully",
             user: {
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
-                address: user.address
-            }
+                address: user.address,
+            },
         });
     } catch (error) {
-        console.error('Update profile error:', error);
-        res.status(500).json({ message: 'Error updating profile' });
+        console.error("Update profile error:", error);
+        res.status(500).json({ message: "Error updating profile" });
     }
 });
 
-export default router; 
+export default router;

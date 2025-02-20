@@ -28,10 +28,14 @@ const userSchema = new mongoose.Schema({
         zipCode: String,
         country: String
     },
-    role: {
+    firebaseUid: {
         type: String,
-        enum: ['customer', 'admin'],
-        default: 'customer'
+        required: true,
+        unique: true
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false
     },
     active: {
         type: Boolean,

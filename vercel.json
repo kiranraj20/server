@@ -176,6 +176,19 @@
       "dest": "server.js"
     },
     {
+      "src": "/user/auth/create-user",
+      "dest": "server.js"
+    },
+    {
+      "src": "/user/auth/login",
+      "dest": "server.js"
+    },
+    {
+      "src": "/user/auth/profile",
+      "dest": "server.js"
+    },
+
+    {
       "src": "/(.*)",
       "dest": "server.js",
       "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
