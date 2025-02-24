@@ -70,6 +70,7 @@ router.post("/create-user", async (req, res) => {
             user: {
                 name: newUser.name,
                 email: newUser.email,
+                token: token,
             },
         });
     } catch (error) {
@@ -85,6 +86,17 @@ router.post("/create-user", async (req, res) => {
 router.post("/login", async (req, res) => {
     try {
         const { email, password, firebaseUid } = req.body;
+        const token = req.headers.authorization?.split("Bearer ")[1];
+
+        if (token) {
+            try {
+                const decodedToken = await admin.auth().verifyIdToken(token);
+                verifiedUid = decodedToken.uid;
+            } catch (error) {
+                console.error("Token verification error:", error);
+                return res.status(401).json({ message: "Invalid or expired token" });
+            }
+        }
 
         // Validate request body
         if (!email || !password || !firebaseUid) {
@@ -123,6 +135,7 @@ router.post("/login", async (req, res) => {
                 id: user._id,
                 email: user.email,
                 firebaseUid: user.firebaseUid,
+                token: token,
             },
         });
     } catch (err) {
